@@ -1546,3 +1546,34 @@ function settings(libraryPath: string): PrivateSettings {
     }
   };
 }
+
+test("scanner skips NaviClean's temporary working files and recycles stale ones", async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "naviclean-scanner-working-files-"));
+  const folder = "Diana Ross/Diana Ross - Diana Ross (1976)";
+  const real = `${folder}/Diana Ross - Diana Ross (1976) - 05 - You're Good My Child.mp3`;
+  const stale = `${folder}/Diana Ross - Diana Ross (1976) - 05 - You're Good My Child.naviclean-retag-1-hbct73i1.mp3`;
+  const fresh = `${folder}/.Diana Ross - Diana Ross (1976) - 06 - Kiss Me Now.naviclean-job42.mp3`;
+
+  try {
+    for (const relativePath of [real, stale, fresh]) {
+      const filePath = path.join(root, ...relativePath.split("/"));
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, "not real audio");
+    }
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+    await fs.utimes(path.join(root, ...stale.split("/")), twoHoursAgo, twoHoursAgo);
+
+    const scanSettings = settings(root);
+    const result = await scanLibrary(scanSettings);
+
+    assert.deepEqual(result.tracks.map((track) => track.relativePath), [real]);
+    assert.ok(result.warnings.some((warning) => warning.startsWith("Moved 1 leftover NaviClean temporary file")));
+    await assert.rejects(fs.access(path.join(root, ...stale.split("/"))));
+    const recycled = await fs.readdir(scanSettings.naming.recycleBinPath, { recursive: true });
+    assert.ok(recycled.some((entry) => String(entry).endsWith(".naviclean-retag-1-hbct73i1.mp3")));
+    // A working file younger than an hour may belong to a write still in progress: skipped, not moved.
+    await fs.access(path.join(root, ...fresh.split("/")));
+  } finally {
+    await fs.rm(root, { force: true, recursive: true });
+  }
+});

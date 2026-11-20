@@ -28,6 +28,7 @@ import {
 } from "./navidrome-matching.js";
 import type { PrivateSettings } from "./settings.js";
 import { hasTrackKeepIdentityTags, readTrackKeepIdentity } from "./trackkeep.js";
+import { isNaviCleanWorkingFile, recycleStaleWorkingFiles } from "./working-files.js";
 import {
   cleanDisplayValue,
   normalizeForMatch,
@@ -65,11 +66,21 @@ export async function scanLibrary(settings: PrivateSettings, onProgress?: Progre
     }
   };
   onProgress?.({ phase: "discovering", processedFiles: 0, totalFiles: 0 });
-  const files = await collectAudioFiles(root, extensions, recycleRoot, onProgress);
+  const { files, workingFiles } = await collectAudioFiles(root, extensions, recycleRoot, onProgress);
   throwIfCancelled();
   const readResults = new Array<TrackFile | null>(files.length).fill(null);
   const errors: string[] = [];
   const warnings: string[] = [];
+  if (workingFiles.length > 0) {
+    // The scan holds the library lock, so no tag write is running; the age check is a second guard.
+    const leftovers = await recycleStaleWorkingFiles(settings, workingFiles);
+    if (leftovers.recycled.length > 0) {
+      warnings.push(
+        `Moved ${leftovers.recycled.length} leftover NaviClean temporary ${leftovers.recycled.length === 1 ? "file" : "files"} from an interrupted tag write or conversion to the recycle bin.`
+      );
+    }
+    warnings.push(...leftovers.errors.map((error) => `Could not recycle a leftover temporary file: ${error}`));
+  }
   const decisions = { overrides: await loadMetadataOverrides(), skips: loadSkipDecisions() };
   const metadataCache = new AudioMetadataCache();
 
@@ -414,6 +425,7 @@ function unmatchedNavidromeDiagnostic(track: TrackFile, indexedTrackCount: numbe
 
 async function collectAudioFiles(root: string, extensions: Set<string>, recycleRoot: string, onProgress?: ProgressHandler) {
   const files: string[] = [];
+  const workingFiles: string[] = [];
   const stack = [root];
   let scannedFiles = 0;
 
@@ -448,7 +460,7 @@ async function collectAudioFiles(root: string, extensions: Set<string>, recycleR
 
       scannedFiles += 1;
       if (extensions.has(path.extname(entry.name).toLowerCase())) {
-        files.push(absolute);
+        (isNaviCleanWorkingFile(entry.name) ? workingFiles : files).push(absolute);
       }
 
       if (scannedFiles % 50 === 0) {
@@ -458,7 +470,7 @@ async function collectAudioFiles(root: string, extensions: Set<string>, recycleR
   }
 
   onProgress?.({ scannedFiles });
-  return files;
+  return { files, workingFiles };
 }
 
 async function readTrack(

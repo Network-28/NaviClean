@@ -2933,6 +2933,18 @@ button.stat:hover {
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
+/* Spells out that the highlight is a suggestion: an automatic match isn't selected until clicked. */
+.identification-confirm-tag {
+  flex: none;
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .spotify-metadata-panel {
   width: min(460px, 70vw);
   padding: 10px;

@@ -860,7 +860,7 @@ export function SpotifyMetadataResolver({
             {confirmedCandidateId
               ? "Release confirmed — pick another to change it"
               : suggestedCandidateId && item.status === "metadata-review"
-                ? "Matched by fingerprint — click the highlighted release to confirm it"
+                ? "Matched by fingerprint — not confirmed yet. Click Confirm to use this release"
               : suggestedCandidateId
                 ? "Matched by fingerprint"
               : item.identification.candidateSource === "musicbrainz-search"
@@ -895,6 +895,9 @@ export function SpotifyMetadataResolver({
                   {candidate.trackNumber ? ` · #${candidate.trackNumber}` : ""}
                   {` · ${Math.round(candidate.score * 100)}%`}
                 </span>
+                {candidate.id === suggestedCandidateId && identifyBusy !== candidate.id && (
+                  <span className="identification-confirm-tag">Confirm</span>
+                )}
               </button>
             ))}
           </div>

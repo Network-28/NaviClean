@@ -1,5 +1,8 @@
 # NaviClean
 
+> **Moved:** this project now lives at [github.com/Network-28](https://github.com/Network-28) and its image is `ghcr.io/network-28/naviclean`. The old `ghcr.io/thedinz/naviclean` image no longer gets updates. If you run it, change your container's image (on Unraid: Edit the container, then Repository) to `ghcr.io/network-28/naviclean:latest` and apply. Your settings and data stay as they are.
+
+
 NaviClean is a Docker-first cleaner and organizer for Navidrome music libraries.
 It scans a mounted music library, browses artists, albums, and tracks, previews clean artist/album/track paths, and only unlocks duplicate cleanup after organization is complete.
 
@@ -46,14 +49,14 @@ It scans a mounted music library, browses artists, albums, and tracks, previews 
 - Runtime user: `PUID=1000`, `PGID=1000`
 - Reverse proxy: `NAVICLEAN_TRUST_PROXY=1`, `NAVICLEAN_SECURE_COOKIES=auto`, `NAVICLEAN_COOKIE_SAMESITE=lax`
 - Advanced diagnostics: `NAVICLEAN_ADVANCED_DIAGNOSTICS=1` shows the internal Diagnostics page and enables its matching-inspection API routes
-- Image: `ghcr.io/thedinz/naviclean:latest`
+- Image: `ghcr.io/network-28/naviclean:latest`
 
 ## Docker Compose
 
 ```yaml
 services:
   naviclean:
-    image: ghcr.io/thedinz/naviclean:latest
+    image: ghcr.io/network-28/naviclean:latest
     container_name: naviclean
     restart: unless-stopped
     ports:

@@ -28,7 +28,7 @@ import { SpotifyMetadataSearchPanel, SpotifyMetadataToggle, useSpotifyMetadataSe
 
 export type UnindexedFilter = "all" | "possible-stale-scan" | "no-api-match";
 export const unindexedPageSize = 150;
-export const navicleanIssuesUrl = "https://github.com/thedinz/NaviClean/issues/new";
+export const navicleanIssuesUrl = "https://github.com/Network-28/NaviClean/issues/new";
 export const unindexedFilters: Array<{ id: UnindexedFilter; label: string }> = [
   { id: "all", label: "All" },
   { id: "possible-stale-scan", label: "Organized" },

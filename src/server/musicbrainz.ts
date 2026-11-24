@@ -93,7 +93,7 @@ export class MusicBrainzError extends Error {
 }
 
 const baseUrl = "https://musicbrainz.org/ws/2/";
-const userAgent = "NaviClean/0.7 ( https://github.com/thedinz/NaviClean )";
+const userAgent = "NaviClean/0.7 ( https://github.com/Network-28/NaviClean )";
 const minimumSpacingMs = 1100;
 const maxAttempts = 4;
 const day = 1000 * 60 * 60 * 24;

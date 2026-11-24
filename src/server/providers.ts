@@ -468,7 +468,7 @@ export async function downloadCoverImage(directory: string, fileBase: string, im
 
   try {
     const response = await fetch(url, {
-      headers: { "User-Agent": "NaviClean/0.7 ( https://github.com/thedinz/NaviClean )" },
+      headers: { "User-Agent": "NaviClean/0.7 ( https://github.com/Network-28/NaviClean )" },
       redirect: "follow",
       signal: AbortSignal.timeout(15_000)
     });

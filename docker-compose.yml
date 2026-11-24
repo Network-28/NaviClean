@@ -1,6 +1,6 @@
 services:
   naviclean:
-    image: ghcr.io/thedinz/naviclean:latest
+    image: ghcr.io/network-28/naviclean:latest
     container_name: naviclean
     restart: unless-stopped
     ports:

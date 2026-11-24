@@ -52,14 +52,16 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.THEDINZ_GHCR_TOKEN != '' && 'thedinz' || github.actor }}
+          password: ${{ secrets.THEDINZ_GHCR_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/thedinz/naviclean
+          images: |
+            name=ghcr.io/network-28/naviclean
+            name=ghcr.io/network-28/naviclean,enable=${{ secrets.THEDINZ_GHCR_TOKEN != '' }}
           tags: |
             type=raw,value=dev,enable=${{ github.ref == 'refs/heads/dev' }}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
